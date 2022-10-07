@@ -9,18 +9,17 @@ jobs:
   github-pages:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
         with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
+          ruby-version: '2.7.4' # To use version matching the one of actions/jekyll-build-pages@v1.0.5
+          bundler-cache: true
       - uses: actions/jekyll-build-pages@v1.0.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: |
           bundle exec htmlproofer --assume-extension .html --disable-external=true \
-            --enforce-https=false _site/
+            --enforce-https=false _site/ || echo "HTMLProofer failed"
+          echo $NUMBER
         env:
           NUMBER: ${{ github.event.issue.number }}
