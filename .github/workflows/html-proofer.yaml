@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        ref: ${{ github.event.inputs.branch }}
+        with:
+          ref: ${{ github.event.inputs.branch }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.7.4' # To use version matching the one of actions/jekyll-build-pages@v1.0.5
