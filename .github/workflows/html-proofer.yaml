@@ -6,7 +6,7 @@ on:
       - feature/html-proofer-action # to be able to test this PR
 
 jobs:
-  github-pages:
+  github-pages-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,6 +17,40 @@ jobs:
       - uses: actions/jekyll-build-pages@v1.0.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-pages-artifact@v1.0.4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  github-pages-deploy:
+    needs: github-pages-build
+    runs-on: ubuntu-latest
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages-proof environment
+    environment:
+      name: github-pages-proof
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/deploy-pages@v1
+        name: Deploy to GitHub Pages
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  html-proofer:
+    needs: github-pages-deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7.4' # To use version matching the one of actions/jekyll-build-pages@v1.0.5
+          bundler-cache: true
       - run: |
           bundle exec htmlproofer --assume-extension .html --checks Links --disable-external=true \
             --enforce-https=false _site/
