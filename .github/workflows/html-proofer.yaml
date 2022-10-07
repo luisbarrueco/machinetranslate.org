@@ -18,5 +18,5 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: |
-          bundle exec htmlproofer --disable-external=true \
+          bundle exec htmlproofer --checks Links --disable-external=true \
             --enforce-https=false _site/
