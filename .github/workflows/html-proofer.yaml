@@ -1,15 +1,19 @@
 name: HTML Proofer
 
 on:
-  push:
-    branches:
-      - feature/html-proofer-action # to be able to test this PR
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run html-proofer on'
+        required: true
+        default: 'master'
 
 jobs:
   github-pages:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        ref: ${{ github.event.inputs.branch }}
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.7.4' # To use version matching the one of actions/jekyll-build-pages@v1.0.5
@@ -19,7 +23,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - run: |
           bundle exec htmlproofer --assume-extension .html --disable-external=true \
-            --enforce-https=false _site/ || echo "HTMLProofer failed"
-          echo $NUMBER
-        env:
-          NUMBER: ${{ github.event.issue.number }}
+            --checks Links --enforce-https=false _site/
